@@ -1,0 +1,36 @@
+{
+  "name": "postgres-deploy-heroku",
+  "version": "1.0.0",
+  "description": "A tutorial about deploy a postgres fullstack application.",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
+  },
+  "keywords": [
+    "postgres-deploy-heroku"
+  ],
+  "author": "Donghao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
+  },
+  "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "pg": "^8.3.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  }
+}
