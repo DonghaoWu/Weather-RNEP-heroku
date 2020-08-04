@@ -3,7 +3,7 @@ const request = require('request-promise');
 class Weather {
     static retrieveByCity(city, callback) {
         request({
-            uri: `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${process.env.WEATHER_API_KEY}&units=imperial`,
+            uri: `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=7a6ef25f8ac55cc8f3eb16c0106210f3&units=imperial`,
             json: true
         }).then((res) => {
             callback(res);
