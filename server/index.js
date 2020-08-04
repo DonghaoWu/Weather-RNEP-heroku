@@ -24,7 +24,7 @@ if (ENV === 'production') {
 }
 
 app.listen(PORT, () => {
-    console.log(`Server is liatening on port ${PORT}`);
+    console.log(`Server is listening on port ${PORT}`);
 });
 
 db.query('SELECT NOW()', (err, res) => {
