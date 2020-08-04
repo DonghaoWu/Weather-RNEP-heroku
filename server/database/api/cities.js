@@ -1,23 +1,22 @@
-const express = require('express');
+let express = require('express');
+let Cities = require('../models/cities');
 
-const Cities = require('../models/cities');
-
-const router = express.Router();
+let router = express.Router();
 
 router.get('/', (req, res) => {
     Cities.retrieveAll((err, cities) => {
         if (err) return res.json(err);
         return res.json(cities);
-    })
-})
+    });
+});
 
 router.post('/', (req, res) => {
-    let city = rq.body.city;
+    let city = req.body.city;
 
-    Cities.insert(city, (err, res) => {
+    Cities.insert(city, (err, result) => {
         if (err) return res.json(err);
-        return res.json();
-    })
-})
+        return res.json(result);
+    });
+});
 
 module.exports = router;
