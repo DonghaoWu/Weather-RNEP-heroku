@@ -1,3 +1,8 @@
+"start":"node server"
+
+"heroku-postbuild": "cd client && npm install && npm run build"
+
+```js
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -16,10 +21,10 @@ app.use(bodayParser.json());
 app.use('/api/cities', require('./database/api/cities'));
 app.use('/api/weather', require('./database/api/weather'));
 
-if (ENV === 'production') {
+if(ENV === 'production'){
     app.use(express.static(path.join(__dirname, 'client/build')));
-    app.use((req, res) => {
-        res.sendFile(path.join(__dirname, '../client/build/index.html'))
+    app.use((req,res)=>{
+        res.sendFile(path.join(__dirname,'../client/build/index.html'))
     })
 }
 
@@ -36,3 +41,29 @@ db.query('SELECT NOW()', (err, res) => {
 });
 
 module.exports = app;
+```
+
+heroku login
+
+heroku create weather-app-demo-2020
+
+heroku addons:create heroku-postgresql:hobby-dev --name=weather-app-demo-2020-db
+
+
+heroku addons:attach weather-app-demo-2020-db --app=weather-app-demo-2020
+
+heroku pg:psql --app weather-app-demo-2020
+
+CREATE TABLE cities (
+	id serial NOT NULL,
+	city_name character varying(50) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+\q
+
+git add .
+git commit -m'ready for deploy'
+git push
+git push heroku master
+
