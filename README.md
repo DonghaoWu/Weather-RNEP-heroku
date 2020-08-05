@@ -26,7 +26,7 @@ WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
 4. Create a local database in Postgres.(Here we use Postico GUI.)
 
 <p align="center">
-<img src="../assets/p29-01.png" width=85%>
+<img src="./assets/p29-01.png" width=85%>
 </p>
 
 ------------------------------------------------------------
@@ -34,7 +34,7 @@ WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
 5. Create a table.
 
 <p align="center">
-<img src="../assets/p29-02.png" width=85%>
+<img src="./assets/p29-02.png" width=85%>
 </p>
 
 ```sql
