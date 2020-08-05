@@ -5,7 +5,7 @@ const SSL = process.env.NODE_ENV === 'production';
 
 
 class Database {
-  constructor () {
+  constructor() {
     this._pool = new Pool({
       connectionString: CONNECTION_STRING,
       ssl: SSL
@@ -18,7 +18,7 @@ class Database {
 
   }
 
-  query (query, ...args) {
+  query(query, ...args) {
     this._pool.connect((err, client, done) => {
       if (err) throw err;
       const params = args.length === 2 ? args[0] : [];
@@ -36,7 +36,7 @@ class Database {
 
   }
 
-  end () {
+  end() {
     this._pool.end();
   }
 }
