@@ -4,6 +4,53 @@ A simple weather app, built for my full stack React app tutorial. Also features 
 
 This tutorial is from [Develop and Deploy a Full Stack React App](https://brycestpierre.com/full-stack-react-app/), by By Bryce St. Pierre. Thanks for his hard work and help! 
 
+#### Instruction.
+
+1. Run commands in terminal
+```bash
+$ git clone <github-link>
+$ cd <folder-name>
+$ npm i
+$ npm run installAll
+```
+
+2. Sign up and get your own Weather api key in [https://openweathermap.org/](https://openweathermap.org/),
+
+3. Create a new file call '.env'.
+
+__`Location:./server/.env`__
+```js
+WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
+```
+
+4. Create a local database in Postgres.(Here we use Postico GUI.)
+
+<p align="center">
+<img src="../assets/p29-01.png" width=85%>
+</p>
+
+------------------------------------------------------------
+
+5. Create a table.
+
+<p align="center">
+<img src="../assets/p29-02.png" width=85%>
+</p>
+
+```sql
+CREATE TABLE cities (
+	id serial NOT NULL,
+	city_name character varying(50) NOT NULL,
+	PRIMARY KEY (id)
+)
+```
+------------------------------------------------------------
+
+
+5. Run the app in local.
+```bash
+$ npm run dev
+```
 ------------------------------------------------------------
 
 # Web development tools (Part 29)
@@ -42,7 +89,7 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
 
 - 本实例有三个特点，第一个是全栈部署，第二是使用 Postgres 部署，有比较大的实用指导意义，第三时作者对于 SQL database 的设置比较原生，也是一个很好学习的机会。
 
-- 自己对原本的文件结构进行调整，对应的 package.json 也进行了修改，是一个很好的学习机会。[heroku nodejs scripts](https://devcenter.heroku.com/articles/nodejs-support)
+- 自己对原本的文件结构进行调整，对应的 package.json 也进行了修改，是一个很好的学习机会。[heroku customize nodejs scripts](https://devcenter.heroku.com/articles/nodejs-support)
 
 ------------------------------------------------------------
 - 设计思路：
@@ -168,7 +215,7 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
 + ./client/package.json 不用修改
 ```
 
-  __`Location:./package.json`__
+__`Location:./package.json`__
 
 ```diff
 {
@@ -177,12 +224,15 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
   "description": "A tutorial about deploy a postgres fullstack application.",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "client": "npm start --prefix client",
-    "server": "npm run server --prefix server",
-    "start": "npm start --prefix server",
-    "heroku-prebuild": "cd server && npm install",
-    "heroku-postbuild": "cd client && npm install && npm run build"
++   "installAll": "concurrently \"npm run installServer\" \"npm run installClient\"",
++   "installServer": "cd server && npm install",
++   "installClient": "cd client && npm install",
++   "dev": "concurrently \"npm run server\" \"npm run client\"",
++   "client": "npm start --prefix client",
++   "server": "npm run server --prefix server",
++   "start": "npm start --prefix server",
++   "heroku-prebuild": "cd server && npm install",
++   "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "repository": {
     "type": "git",
@@ -198,34 +248,41 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
   },
   "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
   "devDependencies": {
-    "concurrently": "^5.2.0"
++   "concurrently": "^5.2.0"
   }
 }
 ```
 
+__`Location:./server/package.json`__
 
+```diff
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
++   "body-parser": "^1.19.0",
++   "cookie-parser": "^1.4.5",
++   "dotenv": "^8.2.0",
++   "express": "^4.17.1",
++   "pg": "^8.3.0",
++   "request": "^2.88.2",
++   "request-promise": "^4.2.6"
+  },
+  "devDependencies": {
++   "nodemon": "^2.0.4"
+  }
+}
+```
 #### `Comment:`
-1. redis 连接本地, 当然还要使用本地连接 redis 的命令 
-
-  ```js
-  const redisClient = redis.createClient({ host: '127.0.0.1' });
-  ```
-
-  - start local redis server:
-  ```bash
-  $ cd
-  $ cd redis-6.0.6 # depends on your redis version
-  $ src/redis-server
-  ```
-
-  - redis docker: 
-  ```js
-  const redisClient = redis.createClient(process.env.REDIS_URI);
-  ```
-
-  ```.env
-  REDIS_URI=redis://redis:6379
-  ```
+1. 修改文件结构确实使工作量增多了，但这样做能够最大程度保持前端 app 和后端 app 能独立一个文件夹，使用起来会清楚很多。
 
 ### <span id="29.2">`Step2: Work on back end signin route.`</span>
 
