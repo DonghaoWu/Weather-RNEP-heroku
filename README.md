@@ -74,25 +74,134 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1. Install depenencies.
+1. 传统的 fullstack 文件结构（网上常见的 heroku deploy 教程结构），[查看这里：Weather-RNEP-heroku-old](https://github.com/DonghaoWu/Weather-RNEP-heroku-old)
 
-    ```bash
-    $ npm i jsonwebtoken
-    $ npm i redis
-    ```
+  - 之前的结构是把前端 app 放在大文件夹里面，前端 app 有自己的 package.json，但是后端 app 不是独立的，它跟全局共用一个 package.json，所以之前一共有两个 package.json，分别是：
 
-2. Apply
+  __`Location:./package.json`__
 
-    __`Location:./demo-apps/backend-smart-brain-api-Auth/controllers/signin.js`__
+  ```json
+  {
+    "name": "postgres-deploy-heroku",
+    "version": "1.0.0",
+    "description": "A tutorial about deploy a postgres fullstack application.",
+    "main": "index.js",
+    "scripts": {
+      "dev": "concurrently \"npm run server\" \"npm run client\"",
+      "client": "npm start --prefix client",
+      "server": "nodemon server",
+      "start": "node server",
+      "heroku-postbuild": "cd client && npm install && npm run build"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
+    },
+    "keywords": [
+      "postgres-deploy-heroku"
+    ],
+    "author": "Donghao",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
+    },
+    "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
+    "devDependencies": {
+      "concurrently": "^5.2.0",
+      "nodemon": "^2.0.4"
+    },
+    "dependencies": {
+      "body-parser": "^1.19.0",
+      "cookie-parser": "^1.4.5",
+      "dotenv": "^8.2.0",
+      "express": "^4.17.1",
+      "pg": "^8.3.0",
+      "request": "^2.88.2",
+      "request-promise": "^4.2.6"
+    }
+  }
+  ```
 
-    ```js
-    const jwt = require('jsonwebtoken');
-    const redis = require('redis');
+  __`Location:./client/package.json`__
 
-    // setup Redis:
+  ```json
+    
+  {
+    "name": "client",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+      "bootstrap": "^4.3.1",
+      "lodash": "^4.17.19",
+      "lodash.template": "^4.5.0",
+      "merge": "^1.2.1",
+      "react": "^16.5.1",
+      "react-dom": "^16.5.1",
+      "react-scripts": "^3.4.1",
+      "reactstrap": "^6.4.0"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test --env=jsdom",
+      "eject": "react-scripts eject"
+    },
+    "proxy": "http://localhost:5000",
+    "browserslist": {
+      "production": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    }
+  }
+  ```
 
-    const redisClient = redis.createClient(process.env.REDIS_URI);
-    ```
+2. 修改后，把后端 app 独立起来，使后端 app 有自己的 package.json，这需要把一些 dependency 转移到 server 文件夹中，同时对根目录的 package.json 进行修改。
+
+```diff
++ ./client/package.json 不用修改
+```
+
+  __`Location:./package.json`__
+
+```diff
+{
+  "name": "postgres-deploy-heroku",
+  "version": "1.0.0",
+  "description": "A tutorial about deploy a postgres fullstack application.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npm start --prefix client",
+    "server": "npm run server --prefix server",
+    "start": "npm start --prefix server",
+    "heroku-prebuild": "cd server && npm install",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
+  },
+  "keywords": [
+    "postgres-deploy-heroku"
+  ],
+  "author": "Donghao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
+  },
+  "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
+  "devDependencies": {
+    "concurrently": "^5.2.0"
+  }
+}
+```
 
 
 #### `Comment:`

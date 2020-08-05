@@ -4,6 +4,9 @@
   "description": "A tutorial about deploy a postgres fullstack application.",
   "main": "index.js",
   "scripts": {
+    "installServer": "cd server && npm install",
+    "installClient": "cd client && npm install",
+    "installAll": "concurrently \"npm i\" \"npm run installServer\" \"npm run installClient\"",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "npm start --prefix client",
     "server": "npm run server --prefix server",
