@@ -1,7 +1,7 @@
 {
-  "name": "full-stack-react-app-tutorial",
+  "name": "postgres-deploy-heroku",
   "version": "1.0.0",
-  "description": "Full stack React app tutorial.",
+  "description": "A tutorial about deploy a postgres fullstack application.",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
@@ -12,29 +12,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BryceStPierre/full-stack-react-app-tutorial.git"
+    "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
   },
   "keywords": [
-    "react"
+    "postgres-deploy-heroku"
   ],
-  "author": "Bryce St. Pierre",
+  "author": "Donghao",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BryceStPierre/full-stack-react-app-tutorial/issues"
+    "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
   },
-  "homepage": "https://github.com/BryceStPierre/full-stack-react-app-tutorial#readme",
+  "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
   "devDependencies": {
-    "concurrently": "^3.6.0",
-    "nodemon": "^1.18.3"
+    "concurrently": "^5.2.0",
+    "nodemon": "^2.0.4"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.3",
-    "dotenv": "^6.0.0",
-    "express": "^4.16.3",
-    "lodash": "^4.17.19",
-    "pg": "^7.4.3",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "pg": "^8.3.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   }
 }

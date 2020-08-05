@@ -31,7 +31,7 @@ class App extends Component {
     fetch('/api/cities')
     .then(res => res.json())
     .then(res => {
-      var cityList = res.map(r => r.city_name);
+      let cityList = res.map(r => r.city_name);
       this.setState({ cityList });
     });
   };
