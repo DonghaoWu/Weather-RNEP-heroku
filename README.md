@@ -23,7 +23,8 @@ __`Location:./server/.env`__
 WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
 ```
 
-4. Create a local database in Postgres.(Here we use Postico GUI.)
+4. Download, install [postgreSQL](https://www.postgresql.org/) and [Postico](https://eggerapps.at/postico/).
+- Create a local database in Postgres.(Here we use Postico GUI.)
 
 <p align="center">
 <img src="./assets/p29-01.png" width=85%>
