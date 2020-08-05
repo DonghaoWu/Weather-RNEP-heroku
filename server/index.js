@@ -1,5 +1,3 @@
-
-require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -14,8 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-app.use('/api/cities', require('./database/api/cities'));
-app.use('/api/weather', require('./database/api/weather'));
+app.use('/api/cities', require('./api/cities'));
+app.use('/api/weather', require('./api/weather'));
 
 if (ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
