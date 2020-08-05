@@ -1,6 +1,7 @@
 const request = require('request-promise');
 
 require('dotenv').config();
+console.log(process.env.WEATHER_API)
 
 class Weather {
   static retrieveByCity (city, callback) {
