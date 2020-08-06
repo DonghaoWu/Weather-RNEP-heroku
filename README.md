@@ -289,11 +289,241 @@ __`Location:./server/package.json`__
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1.  
+#### Backend 主要是聚焦在 Database 的设置不一样上面。
 
+1. 之前 smart-brain-prod ：
+
+- 设置：
+
+```js
+// Step 1, 定义 route function
+const handleProfileGet = (req, res, db) => {
+  const { id } = req.params;
+  db.select('*').from('users').where({ id })
+    .then(user => {
+      if (user.length) {
+        res.json(user[0])
+      } else {
+        res.status(400).json('Not found')
+      }
+    })
+    .catch(err => res.status(400).json('error getting user'))
+}
+
+// Step 2, Database Setup
+const knex = require('knex');
+
+const db = knex({
+  client: process.env.POSTGRES_CLIENT,
+  connection: {
+    host: process.env.POSTGRES_HOST,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB
+  }
+});
+
+// Step 3, 应用，在 route 中调用 function。
+app.get('/profile/:id', auth.requireAuth, (req, res) => { handleProfileGet(req, res, db) })
+```
+
+- 或者
+```js
+// Step 2, Database Setup
+const knex = require('knex');
+
+const db = knex({
+  client: 'pg',
+  connection: process.env.POSTGRES_URI
+});
+```
+
+1. 本例的 postgreSQL 设置：
+
+```js
+// Step 1, Database Setup
+const { Pool } = require('pg');
+
+const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
+
+class Database {
+  constructor() {
+    this._pool = new Pool({
+      connectionString: CONNECTION_STRING,
+    });
+
+    this._pool.on('error', (err, client) => {
+      console.error('Unexpected error on idle PostgreSQL client.', err);
+      process.exit(-1);
+    });
+  }
+
+  query(query, ...args) {
+    this._pool.connect((err, client, done) => {
+      if (err) throw err;
+      const params = args.length === 2 ? args[0] : [];
+      const callback = args.length === 1 ? args[0] : args[1];
+
+      client.query(query, params, (err, res) => {
+        done();
+        if (err) {
+          console.log(err.stack);
+          return callback({ error: 'Database error.' }, null);
+        }
+        callback({}, res.rows);
+      });
+    });
+  }
+
+  end() {
+    this._pool.end();
+  }
+}
+
+module.exports = new Database();
+```
+
+```js
+// Step 2, 定义route function
+const db = require('../database');
+
+class Cities {
+  static retrieveAll (callback) {
+    db.query('SELECT city_name from cities', (err, res) => {
+      let result = err.error || res;
+      callback(result);
+    });
+  }
+
+  static insert (city, callback) {
+    db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
+      let result = err.error || res;
+      callback(result);
+    });
+  }
+}
+
+module.exports = Cities;
+```
+
+```js
+// Step 3, 应用，在 route 中调用 function。
+let express = require('express');
+let Cities = require('../models/cities');
+
+let router = express.Router();
+
+router.get('/', (req, res) => {
+  Cities.retrieveAll((result) => {
+    return res.json(result);
+  });
+});
+
+router.post('/', (req, res) => {
+  let city = req.body.city;
+
+  Cities.insert(city, (result) => {
+    return res.json(result);
+  });
+});
+
+module.exports = router;
+```
 
 #### `Comment:`
-1. 
+1. 很明显，本例中使用的 database 设置更复杂更原生，值得学习，而且这里使用了 跟 smart-brain 不一样的 __`pool 概念`__。
+
+2. 试图分析这种原生设置的调用顺序：
+
+```diff
++ API call: `/`
++ client.query('SELECT city_name from cities', [], callback-A);
+
+
++ success:
++ callback-A({}, res.rows); //db.query('SELECT city_name from cities', callback-A);
++ callback-B(res); // retrieveAll (callback-B)
+
+
+- failed
+- callback-A({ error: 'Database error.' }, null); //db.query('SELECT city_name from cities', callback-A);
+- callback-B(err); // retrieveAll (callback-B)
+```
+
+3. 从代码可知，有两个函数是原生的，包括
+
+```js
+this._pool.on(param, callback) // callback(err, client)
+this._pool.connect(callback) // callback(err, client, done)
+client.query(param1, param2, callback) // client 来自 this._pool.connect(callback) 中 callback 的第二个参数。
+```
+
+4. 很明显上面这个是一个 callback hell :dizzy:
+
+- 这个也是一个学习 callback 的机会，在上一层参数中加入 callback，然后调用，可以保证函数的先后调用顺序，可以通过下图理解：
+
+<p align="center">
+<img src="./assets/p29-03.png" width=85%>
+</p>
+
+-----------------------------------------------------------------
+
+5. 为了方便理解，上面的代码跟源代码有点区别，原版是：
+
+```js
+// Step 2, 定义route function
+const db = require('../database');
+
+class Cities {
+  static retrieveAll (callback) {
+    db.query('SELECT city_name from cities', (err, res) => {
+      if (err.error)
+        return callback(err);
+      callback(res);
+    });
+  }
+
+  static insert (city, callback) {
+    db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
+      if (err.error)
+        return callback(err);
+      callback(res);
+    });
+  }
+}
+
+module.exports = Cities;
+```
+
+```js
+// Step 3, 应用，在 route 中调用 function。
+let express = require('express');
+let Cities = require('../models/cities');
+
+let router = express.Router();
+
+router.get('/', (req, res) => {
+  Cities.retrieveAll((err, cities) => {
+    if (err)
+      return res.json(err);
+    return res.json(cities);
+  });
+});
+
+router.post('/', (req, res) => {
+  let city = req.body.city;
+
+  Cities.insert(city, (err, result) => {
+    if (err)
+      return res.json(err);
+    return res.json(result);
+  });
+});
+
+module.exports = router;
+```
+
+
 
 
 ### <span id="29.3">`Step3: Frontend setup.`</span>
