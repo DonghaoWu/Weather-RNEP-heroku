@@ -1,4 +1,4 @@
-__`KEY_WORD: PostgreSQL, Heroku, database pool, Callback function order.`__
+__`KEY_WORD: Heroku deploy, PostgreSQL, package.json scrips, full-stack app file structure, database pool, Callback function order.`__
 
 ------------------------------------------------------------
 # Full Stack React App Tutorial
