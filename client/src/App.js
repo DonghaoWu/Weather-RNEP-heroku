@@ -53,16 +53,13 @@ class App extends Component {
       });
   };
 
-  getWeather = (city) => {
+  handleChangeCityAndGetWeather = (e) => {
+    let city = e.target.value;
     fetch(`/api/weather/${city}`)
       .then(res => res.json())
       .then(weather => {
         this.setState({ weather });
       });
-  }
-
-  handleChangeCity = (e) => {
-    this.getWeather(e.target.value);
   }
 
   componentDidMount() {
@@ -98,7 +95,7 @@ class App extends Component {
           <Col>
             <h1 className="display-5">Current Weather</h1>
             <FormGroup>
-              <Input type="select" onChange={this.handleChangeCity}>
+              <Input type="select" onChange={this.handleChangeCityAndGetWeather}>
                 {this.state.cityList.length === 0 && <option>No cities added yet.</option>}
                 {this.state.cityList.length > 0 && <option>Select a city.</option>}
                 {this.state.cityList.map((city, i) => <option key={i}>{city}</option>)}

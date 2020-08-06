@@ -1,4 +1,4 @@
-__`KEY_WORD: Heroku deploy, PostgreSQL, package.json scrips, full-stack app file structure, database pool, Callback function order.`__
+__`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, full-stack app file structure, Callback function order, Frontend options input.`__
 
 ------------------------------------------------------------
 # Full Stack React App Tutorial
@@ -97,9 +97,9 @@ $ npm run dev
 ------------------------------------------------------------
 - 设计思路：
 
-1. 后端思路：
+1. 后端思路：重点是 pool 的设置。
 
-2. 前端思路：
+2. 前端思路：正常设置，还有配置 proxy。
 
 3. 可以补充的工作：
     - 加入 redis & Authentication。
@@ -117,6 +117,7 @@ $ npm run dev
 - [29.3 Frontend setup.](#29.3)
 - [29.4 Deploy in heroku.](#29.4)
 - [29.5 Redeploy.](#29.5)
+- [29.6 PostgreSQL pool.](#29.6)
 
 ------------------------------------------------------------
 
@@ -465,8 +466,7 @@ this._pool.connect(callback) // callback(err, client, done)
 client.query(param1, param2, callback) // client 来自 this._pool.connect(callback) 中 callback 的第二个参数。
 ```
 
-
-5. 为了方便理解，上面的代码跟源代码有点区别，原版是：
+4. 为了方便理解，上面的代码跟源代码有点区别，原版是：
 
 ```js
 // Step 2, 定义route function
@@ -522,30 +522,219 @@ module.exports = router;
 ```
 
 
-
-
 ### <span id="29.3">`Step3: Frontend setup.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1. 
+1. 配置 proxy：
 
+__`Location:./client/package.json`__
+
+```json
+"proxy": "http://localhost:5000"
+```
+
+2. 前端代码：
+
+__`Location:./client/src/App.js`__
+
+```jsx
+import React, { Component } from 'react';
+
+import {
+  Container,
+  Navbar,
+  NavbarBrand,
+  Row,
+  Jumbotron,
+  InputGroup,
+  InputGroupAddon,
+  Button,
+  FormGroup,
+  Input,
+  Col
+} from 'reactstrap';
+
+import Weather from './Weather';
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      weather: null,
+      cityList: [],
+      newCityName: ''
+    };
+  }
+
+  getCityList = () => {
+    fetch('/api/cities')
+      .then(res => res.json())
+      .then(res => {
+        let cityList = res.map(r => r.city_name);
+        this.setState({ cityList });
+      });
+  };
+
+  handleInputChange = (e) => {
+    this.setState({ newCityName: e.target.value });
+  };
+
+  handleAddCity = () => {
+    fetch('/api/cities', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city: this.state.newCityName })
+    })
+      .then(res => res.json())
+      .then(res => {
+        this.getCityList();
+        this.setState({ newCityName: '' });
+      });
+  };
+
+  handleChangeCityAndGetWeather = (e) => {
+    let city = e.target.value;
+    fetch(`/api/weather/${city}`)
+      .then(res => res.json())
+      .then(weather => {
+        this.setState({ weather });
+      });
+  }
+
+  componentDidMount() {
+    this.getCityList();
+  }
+
+  render() {
+    return (
+      <Container fluid className="centered">
+        <Navbar dark color="dark">
+          <NavbarBrand href="/">MyWeather</NavbarBrand>
+        </Navbar>
+        <Row>
+          <Col>
+            <Jumbotron>
+              <h1 className="display-3">MyWeather</h1>
+              <p className="lead">The current weather for your favorite cities!</p>
+              <InputGroup>
+                <Input
+                  placeholder="New city name..."
+                  value={this.state.newCityName}
+                  onChange={this.handleInputChange}
+                />
+                <InputGroupAddon addonType="append">
+                  <Button color="primary" onClick={this.handleAddCity}>Add City</Button>
+                </InputGroupAddon>
+
+              </InputGroup>
+            </Jumbotron>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <h1 className="display-5">Current Weather</h1>
+            <FormGroup>
+              <Input type="select" onChange={this.handleChangeCityAndGetWeather}>
+                {this.state.cityList.length === 0 && <option>No cities added yet.</option>}
+                {this.state.cityList.length > 0 && <option>Select a city.</option>}
+                {this.state.cityList.map((city, i) => <option key={i}>{city}</option>)}
+              </Input>
+            </FormGroup>
+          </Col>
+        </Row>
+        <Weather data={this.state.weather} />
+      </Container>
+    );
+  }
+}
+
+export default App;
+```
 
 #### `Comment:`
-1. 
+1. `这里有一个新应用，就是 option 的 handle function 的书写。`
 
 ### <span id="29.4">`Step4: Deploy in heroku.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1. 
+1. 设定 static 内容的来源。
+
+__`Location:./server/index.js`__
+
+```js
+const ENV = process.env.NODE_ENV;
+
+if(ENV === 'production'){
+    app.use(express.static(path.join(__dirname, 'client/build')));
+    app.use((req,res)=>{
+        res.sendFile(path.join(__dirname,'../client/build/index.html'))
+    })
+}
+```
+
+2. Bash heroku 命令 (先注册 heroku 账户)：:star::star::star:
+
+```bash
+$ heroku login  # 登录 heroku
+$ heroku create <your-app-name> # 定制 app 名字
+$ heroku addons:create heroku-postgresql:hobby-dev --name=<your-db-name> # 新增一个 postgreSQL 的 database。
+
+$ heroku addons:attach <your-db-name> --app=<your-app-name> # 设定 app 和 db 对接
+
+$ heroku pg:psql --app <your-app-name> # 进入 app 对应的 db 的命令行
+
+$ =>CREATE TABLE cities (
+	id serial NOT NULL,
+	city_name character varying(50) NOT NULL,
+	PRIMARY KEY (id)
+); # 逐行输入，记得最后输入 `;` 表示结束。
+
+\q # 退出 app 对应的 db 的命令行
+
+$ git add .
+$ git commit -m'ready for deploy'
+$ git push
+$ git push heroku master
+```
 
 
+<p align="center">
+<img src="./assets/p29-04.png" width=90%>
+</p>
+
+-----------------------------------------------------------------
+
+
+<p align="center">
+<img src="./assets/p29-05.png" width=90%>
+</p>
+
+-----------------------------------------------------------------
+
+
+<p align="center">
+<img src="./assets/p29-06.png" width=90%>
+</p>
+
+-----------------------------------------------------------------
 
 #### `Comment:`
 1. 
 
 ### <span id="29.5">`Step5: Redploy.`</span>
+
+- #### Click here: [BACK TO CONTENT](#29.0)
+
+1. 
+
+
+#### `Comment:`
+1. 
+
+### <span id="29.6">`Step6: PostgreSQL pool.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
@@ -567,6 +756,15 @@ __`本章用到的全部资料：`__
 
 4. [Weather-RNEP-heroku-old](https://github.com/DonghaoWu/Weather-RNEP-heroku-old)
 
+5. [nodejs连接postgreSQL数据库](https://blog.csdn.net/u013992330/article/details/79281250)
+
+6. [How to connect PostgreSQL to NodeJS right way?](https://stackoverrun.com/cn/q/12054533)
+
+7. [关于Node.js连接postgreSQL并进行数据操作的介绍](https://m.php.cn/article/405563.html)
+
+8. [PostgreSQL Connection Pooling: Part 1 – Pros & Cons](https://scalegrid.io/blog/postgresql-connection-pooling-part-1-pros-and-cons/)
+
+9. [PostgreSQL pooling offical doc](https://node-postgres.com/features/pooling)
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 - #### Click here: [BACK TO NAVIGASTION](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/README.md)
