@@ -1,5 +1,7 @@
 __`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, full-stack app file structure, Callback function order, Frontend options input.`__
 
+- Check the deploy app here. [Weather app heroku link.](https://weather-app-demo-2020.herokuapp.com/)
+
 ------------------------------------------------------------
 # Full Stack React App Tutorial
 A simple weather app, built for my full stack React app tutorial. Also features Reactstrap, Express, and PostgreSQL.
@@ -728,8 +730,19 @@ $ git push heroku master
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1. 
+1. Bash commands:
 
+```bash
+$ git add .
+$ git commit -m'ready for deploy'
+$ git push heroku master
+```
+
+2. 指定连接特定的 heroku app (option)
+
+```bash
+$ heroku git:remote -a weather-app-demo-2020 # <specify-app-name>
+```
 
 #### `Comment:`
 1. 
