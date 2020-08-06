@@ -27,7 +27,7 @@ WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
 - Create a local database in Postgres.(Here we use Postico GUI.)
 
 <p align="center">
-<img src="./assets/p29-01.png" width=85%>
+<img src="./assets/p29-01.png" width=90%>
 </p>
 
 ------------------------------------------------------------
@@ -35,7 +35,7 @@ WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
 5. Create a table.
 
 <p align="center">
-<img src="./assets/p29-02.png" width=85%>
+<img src="./assets/p29-02.png" width=90%>
 </p>
 
 ```sql
@@ -291,9 +291,7 @@ __`Location:./server/package.json`__
 
 #### Backend 主要是聚焦在 Database 的设置不一样上面。
 
-1. 之前 smart-brain-prod ：
-
-- 设置：
+1. 之前 smart-brain-prod 的 postgreSQL 设置：
 
 ```js
 // Step 1, 定义 route function
@@ -338,7 +336,7 @@ const db = knex({
 });
 ```
 
-1. 本例的 postgreSQL 设置：
+2. 本例的 postgreSQL 设置：
 
 ```js
 // Step 1, Database Setup
@@ -450,6 +448,13 @@ module.exports = router;
 - callback-B(err); // retrieveAll (callback-B)
 ```
 
+
+<p align="center">
+<img src="./assets/p29-03.png" width=90%>
+</p>
+
+-----------------------------------------------------------------
+
 3. 从代码可知，有两个函数是原生的，包括
 
 ```js
@@ -458,15 +463,6 @@ this._pool.connect(callback) // callback(err, client, done)
 client.query(param1, param2, callback) // client 来自 this._pool.connect(callback) 中 callback 的第二个参数。
 ```
 
-4. 很明显上面这个是一个 callback hell :dizzy:
-
-- 这个也是一个学习 callback 的机会，在上一层参数中加入 callback，然后调用，可以保证函数的先后调用顺序，可以通过下图理解：
-
-<p align="center">
-<img src="./assets/p29-03.png" width=85%>
-</p>
-
------------------------------------------------------------------
 
 5. 为了方便理解，上面的代码跟源代码有点区别，原版是：
 
