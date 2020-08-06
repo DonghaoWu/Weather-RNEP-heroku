@@ -1,10 +1,12 @@
+__`KEY_WORD: PostgreSQL, Heroku, database pool, Callback function order.`__
+
 ------------------------------------------------------------
 # Full Stack React App Tutorial
 A simple weather app, built for my full stack React app tutorial. Also features Reactstrap, Express, and PostgreSQL.
 
 This tutorial is from [Develop and Deploy a Full Stack React App](https://brycestpierre.com/full-stack-react-app/), by By Bryce St. Pierre. Thanks for his hard work and help! 
 
-#### Instruction.
+#### Instruction about running application locally.
 
 1. Run commands in terminal
 ```bash
