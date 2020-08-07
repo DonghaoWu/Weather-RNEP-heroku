@@ -119,7 +119,8 @@ $ npm run dev
 - [29.3 Frontend setup.](#29.3)
 - [29.4 Deploy in heroku.](#29.4)
 - [29.5 Redeploy.](#29.5)
-- [29.6 PostgreSQL pool.](#29.6)
+- [29.6 ‘pg’ Dependency version update.](#29.6)
+- [29.7 PostgreSQL pool.](#29.7)
 
 ------------------------------------------------------------
 
@@ -757,17 +758,116 @@ $ heroku git:remote -a weather-app-demo-2020 # <specify-app-name>
 #### `Comment:`
 1. 
 
-### <span id="29.6">`Step6: PostgreSQL pool.`</span>
+### <span id="29.6">`Step6: ‘pg’ Dependency version update..`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-1. 
+1. `"pg": "^8.3.0",`:
 
+__`Location:./server/database/index.js`__
+
+```js
+var { Pool } = require('pg');
+
+const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
+
+class Database {
+  constructor() {
+    this._pool = new Pool({
+      connectionString: CONNECTION_STRING,
+    });
+
+    this._pool.on('error', (err, client) => {
+      console.error('Unexpected error on idle PostgreSQL client.', err);
+      process.exit(-1);
+    });
+
+  }
+
+  query(query, ...args) {
+    this._pool.connect((err, client, done) => {
+      if (err) throw err;
+      const params = args.length === 2 ? args[0] : [];
+      const callback = args.length === 1 ? args[0] : args[1];
+
+      client.query(query, params, (err, res) => {
+        done();
+        if (err) {
+          console.log(err.stack);
+          return callback({ error: 'Database error.' }, null);
+        }
+        callback({}, res.rows);
+      });
+    });
+
+  }
+
+  end() {
+    this._pool.end();
+  }
+}
+
+module.exports = new Database();
+```
+
+2. `"pg": "^7.4.3"`:
+
+__`Location:./server/database/index.js`__
+
+```js
+var { Pool } = require('pg');
+
+const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
+const SSL = process.env.NODE_ENV === 'production';
+
+class Database {
+  constructor () {
+    this._pool = new Pool({
+      connectionString: CONNECTION_STRING,
+      ssl: SSL
+    });
+
+    this._pool.on('error', (err, client) => {
+      console.error('Unexpected error on idle PostgreSQL client.', err);
+      process.exit(-1);
+    });
+
+  }
+
+  query (query, ...args) {
+    this._pool.connect((err, client, done) => {
+      if (err) throw err;
+      const params = args.length === 2 ? args[0] : [];
+      const callback = args.length === 1 ? args[0] : args[1];
+
+      client.query(query, params, (err, res) => {
+        done();
+        if (err) {
+          console.log(err.stack);
+          return callback({ error: 'Database error.' }, null);
+        }
+        callback({}, res.rows);
+      });
+    });
+  }
+
+  end () {
+    this._pool.end();
+  }
+}
+
+module.exports = new Database();
+```
 
 #### `Comment:`
-1. 
+1. 两个 pg 的版本，对应的配置有不一样，主要是 7 版本需要配置 SSL，8 版本不需要。
+2. 其实配置了 SSL 的 8 版本在本地是可以运行的，但是部署在 heroku 上面就不行，出现以下错误：
 
-------------------------------------------------------------
+<p align="center">
+<img src="./assets/p29-07.png" width=90%>
+</p>
+
+-----------------------------------------------------------------
 
 __`本章用到的全部资料：`__
 
