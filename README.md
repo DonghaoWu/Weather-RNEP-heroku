@@ -758,7 +758,7 @@ $ heroku git:remote -a weather-app-demo-2020 # <specify-app-name>
 #### `Comment:`
 1. 
 
-### <span id="29.6">`Step6: ‘pg’ Dependency version update..`</span>
+### <span id="29.6">`Step6: ‘pg’ Dependency version update.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
