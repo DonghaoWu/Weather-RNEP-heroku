@@ -1,4 +1,4 @@
-__`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, full-stack app file structure, Callback function order, Frontend options input.`__
+__`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, __dirname, full-stack app file structure, Callback function order, Frontend options input.`__
 
 - Check the deploy app here. [Weather app heroku link.](https://weather-app-demo-2020.herokuapp.com/)
 
@@ -670,12 +670,22 @@ __`Location:./server/index.js`__
 const ENV = process.env.NODE_ENV;
 
 if(ENV === 'production'){
-    app.use(express.static(path.join(__dirname, 'client/build')));
+    app.use(express.static(path.join(__dirname, '../client/build')));
     app.use((req,res)=>{
         res.sendFile(path.join(__dirname,'../client/build/index.html'))
     })
 }
 ```
+
+#### `Comment:`
+- 关于 __dirname 的使用。
+```js
+path.join(__dirname, '../client/build')
+// __dirname ---> 当前路径，以字符串表示，是动态显示属性，无论这个 app 在哪里，__dirname 都是指当前文件所在文件夹。
+// ‘../client/build’，表示当前文件所在文件夹往上一层，然后进入 client 文件夹，最后定位里面的 build 文件夹。
+```
+
+- 参考资料：[How to Use __dirname in Node.js](https://www.digitalocean.com/community/tutorials/nodejs-how-to-use__dirname)
 
 2. Bash heroku 命令 (先注册 heroku 账户)：:star::star::star:
 
@@ -778,6 +788,8 @@ __`本章用到的全部资料：`__
 8. [PostgreSQL Connection Pooling: Part 1 – Pros & Cons](https://scalegrid.io/blog/postgresql-connection-pooling-part-1-pros-and-cons/)
 
 9. [PostgreSQL pooling offical doc](https://node-postgres.com/features/pooling)
+
+10. [How to Use __dirname in Node.js](https://www.digitalocean.com/community/tutorials/nodejs-how-to-use__dirname)
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 - #### Click here: [BACK TO NAVIGASTION](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/README.md)
