@@ -394,14 +394,14 @@ const db = require('../database');
 class Cities {
   static retrieveAll (callback) {
     db.query('SELECT city_name from cities', (err, res) => {
-      let result = err.error || res;
+      let result = err.error ? err : res;
       callback(result);
     });
   }
 
   static insert (city, callback) {
     db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
-      let result = err.error || res;
+      let result = err.error ? err : res;
       callback(result);
     });
   }
