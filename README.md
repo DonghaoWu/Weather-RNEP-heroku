@@ -711,6 +711,9 @@ $ git add .
 $ git commit -m'ready for deploy'
 $ git push
 $ git push heroku master
+
+$ heroku ps:scale web=1
+$ heroku open
 ```
 
 
