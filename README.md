@@ -1,5 +1,11 @@
 __`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, __dirname, full-stack app file structure, Callback function order, Frontend options input.`__
 
+<p align="center">
+<img src="./assets/weather-01.png" width=90%>
+</p>
+
+---------------------------------------------------
+
 - Check the deploy app here. [Weather app heroku link.](https://weather-app-demo-2020.herokuapp.com/)
 
 ------------------------------------------------------------
@@ -118,7 +124,7 @@ $ npm run dev
 - [29.2 Backend setup.](#29.2)
 - [29.3 Frontend setup.](#29.3)
 - [29.4 Deploy in heroku.](#29.4)
-- [29.5 Redeploy.](#29.5)
+- [29.5 Re-deploy.](#29.5)
 - [29.6 ‘pg’ Dependency version update.](#29.6)
 - [29.7 PostgreSQL pool.](#29.7)
 
@@ -740,7 +746,7 @@ $ heroku open
 #### `Comment:`
 1. 
 
-### <span id="29.5">`Step5: Redploy.`</span>
+### <span id="29.5">`Step5: Re-deploy.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
