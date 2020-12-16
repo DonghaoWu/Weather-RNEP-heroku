@@ -8,6 +8,8 @@ __`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrip
 
 - Check the deploy app here. [Weather app heroku link.](https://weather-app-demo-2020.herokuapp.com/)
 
+- Click here: [BACK TO NAVIGASTION](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/README.md).
+
 ------------------------------------------------------------
 # Full Stack React App Tutorial
 A simple weather app, built for my full stack React app tutorial. Also features Reactstrap, Express, and PostgreSQL.
