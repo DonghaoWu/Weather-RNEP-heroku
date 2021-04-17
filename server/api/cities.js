@@ -3,22 +3,23 @@ let Cities = require('../models/cities');
 
 let router = express.Router();
 
-router.get('/', (req, res) => {
-  Cities.retrieveAll((err, cities) => {
-    if (err)
-      return res.json(err);
+router.get('/', async (req, res, next) => {
+  try {
+    const { cities } = await Cities.retrieveAll();
     return res.json(cities);
-  });
+  } catch (error) {
+    return next(error);
+  }
 });
 
-router.post('/', (req, res) => {
-  let city = req.body.city;
-
-  Cities.insert(city, (err, result) => {
-    if (err)
-      return res.json(err);
-    return res.json(result);
-  });
+router.post('/', async (req, res, next) => {
+  try {
+    let city = req.body.city;
+    const { message } = await Cities.insert({ city });
+    return res.json(message);
+  } catch (error) {
+    return next(error);
+  }
 });
 
 module.exports = router;

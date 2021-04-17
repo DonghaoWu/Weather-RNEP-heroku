@@ -23,17 +23,22 @@ class App extends Component {
     this.state = {
       weather: null,
       cityList: [],
-      newCityName: ''
+      newCityName: '',
+      error: ''
     };
   }
 
-  getCityList = () => {
-    fetch('/api/cities')
-      .then(res => res.json())
-      .then(res => {
-        let cityList = res.map(r => r.city_name);
-        this.setState({ cityList });
-      });
+  getCityList = async () => {
+    try {
+      const res = await fetch('/api/cities');
+      const data = await res.json();
+
+      let cityList = data.map(r => r.city_name);
+      this.setState({ cityList });
+      
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   handleInputChange = (e) => {
@@ -53,13 +58,19 @@ class App extends Component {
       });
   };
 
-  handleChangeCityAndGetWeather = (e) => {
-    let city = e.target.value;
-    fetch(`/api/weather/${city}`)
-      .then(res => res.json())
-      .then(weather => {
-        this.setState({ weather });
-      });
+  handleChangeCityAndGetWeather = async (e) => {
+    try {
+      let city = e.target.value;
+      let res = await fetch(`/api/weather/${city}`);
+      let data = await res.json();
+
+      if (data.type === 'error') {
+        return this.setState({ weather: null, error: data.message });
+      }
+      else return this.setState({ weather: data, error: '' });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   componentDidMount() {
@@ -103,7 +114,15 @@ class App extends Component {
             </FormGroup>
           </Col>
         </Row>
-        <Weather data={this.state.weather} />
+        <div>
+          {
+            this.state.error ?
+              <p>{this.state.error}</p>
+              :
+              <Weather data={this.state.weather} />
+          }
+        </div>
+
       </Container>
     );
   }

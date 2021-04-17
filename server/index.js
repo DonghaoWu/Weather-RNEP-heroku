@@ -16,6 +16,14 @@ app.use(bodyParser.json());
 app.use('/api/cities', require('./api/cities'));
 app.use('/api/weather', require('./api/weather'));
 
+app.use((err, req, res, next) => {
+  const statusCode = err.cod || 500;
+  res.status(statusCode).json({
+      type: 'error',
+      message: err.message
+  })
+})
+
 if (ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
   app.use((req, res) => {
@@ -28,9 +36,8 @@ app.listen(PORT, () => {
 });
 
 db.query('SELECT NOW()', (err, res) => {
-  if (err.error)
-    return console.log(err.error, '11');
-  console.log(`PostgreSQL connected: ${res[0].now}.`);
+  if (err) return console.log(err.error);
+  console.log(`PostgreSQL connected: ${res.rows[0].now}.`);
 });
 
 module.exports = app;
