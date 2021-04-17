@@ -21,8 +21,8 @@ app.use('/api/weather', require('./api/weather'));
 app.use((err, req, res, next) => {
   const statusCode = err.cod || 500;
   res.status(statusCode).json({
-      type: 'error',
-      message: err.message
+    type: 'error',
+    message: err.message
   })
 })
 

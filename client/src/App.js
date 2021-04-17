@@ -24,7 +24,7 @@ class App extends Component {
       weather: null,
       cityList: [],
       newCityName: '',
-      error: ''
+      error: '',
     };
   }
 
@@ -35,7 +35,7 @@ class App extends Component {
 
       let cityList = data.map(r => r.city_name);
       this.setState({ cityList });
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -46,15 +46,36 @@ class App extends Component {
   };
 
   handleAddCity = () => {
-    fetch('/api/cities', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city: this.state.newCityName })
-    })
+    let input = this.state.newCityName.trim().toLowerCase();
+    let city = input[0].toUpperCase() + input.slice(1);
+    if (!city) {
+      return this.setState({ weather: null, error: 'Please input a city name.', newCityName: '' });
+    }
+    fetch(`/api/weather/${city}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.type === 'error') {
+          throw new Error(data.message);
+        }
+        else {
+          this.setState({ newCityName: '', weather: data, error: '' });
+          return fetch('/api/cities', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ city })
+          })
+        }
+      })
       .then(res => res.json())
       .then(res => {
+        if (res.type === 'error' && res.message === `duplicate key value violates unique constraint "cities_city_name_key"`) {
+          throw new Error('Duplicate city name.');
+        }
         this.getCityList();
         this.setState({ newCityName: '' });
+      })
+      .catch(err => {
+        return this.setState({ weather: null, error: err.message, newCityName: '' });
       });
   };
 
@@ -117,7 +138,7 @@ class App extends Component {
         <div>
           {
             this.state.error ?
-              <p>{this.state.error}</p>
+              <p style={{ color: "red" }}> {this.state.error}</p>
               :
               <Weather data={this.state.weather} />
           }
