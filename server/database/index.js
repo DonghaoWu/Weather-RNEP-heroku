@@ -1,7 +1,3 @@
-const { Pool } = require('pg');
-
-const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
-
 // class Database {
 //   constructor() {
 //     this._pool = new Pool({
@@ -38,8 +34,37 @@ const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:pos
 
 // module.exports = new Database();
 
-const pool = new Pool({
-  connectionString: CONNECTION_STRING,
-});
+// const { Pool } = require('pg');
 
-module.exports = pool;
+// const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
+
+// const pool = new Pool({
+//   connectionString: CONNECTION_STRING,
+// });
+
+// module.exports = pool;
+
+require('dotenv').config();
+const { Client } = require('pg');
+
+const dbSetting = process.env.DATABASE_URL ?
+    {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    }
+    :
+    {
+        user: process.env.POSTGRE_USER,
+        host: process.env.POSTGRE_HOST,
+        database: process.env.POSTGRE_LOCAL_DATABASE,
+        password: process.env.POSTGRE_password,
+        port: process.env.POSTGRE_PORT
+    }
+
+const db = new Client(dbSetting);
+
+db.connect();
+
+module.exports = db;
