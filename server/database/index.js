@@ -32,7 +32,7 @@
 //   }
 // }
 
-module.exports = new Database();
+// module.exports = new Database();
 
 const { Pool } = require('pg');
 
