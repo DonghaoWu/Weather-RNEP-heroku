@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const db = require('./database');
 
@@ -9,6 +10,7 @@ const ENV = process.env.NODE_ENV;
 const PORT = process.env.PORT || 5000;
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -31,13 +33,13 @@ if (ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}!`);
-});
-
 db.query('SELECT NOW()', (err, res) => {
   if (err) return console.log(err.error);
   console.log(`PostgreSQL connected: ${res.rows[0].now}.`);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}!`);
 });
 
 module.exports = app;
