@@ -46,11 +46,14 @@ class App extends Component {
   };
 
   handleAddCity = () => {
-    let input = this.state.newCityName.trim().toLowerCase();
-    let city = input[0].toUpperCase() + input.slice(1);
-    if (!city) {
+    let input = this.state.newCityName.trim();
+    if (!input) {
       return this.setState({ weather: null, error: 'Please input a city name.', newCityName: '' });
     }
+
+    let lowerCase = input.toLowerCase();
+    let city = lowerCase.split(' ').map(a => a[0].toUpperCase() + a.slice(1)).join(' ');
+
     fetch(`/api/weather/${city}`)
       .then(res => res.json())
       .then(data => {
@@ -75,7 +78,7 @@ class App extends Component {
         this.setState({ newCityName: '' });
       })
       .catch(err => {
-        return this.setState({ weather: null, error: err.message, newCityName: '' });
+        return this.setState({ weather: null, error: err.message});
       });
   };
 
