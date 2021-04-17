@@ -34,39 +34,39 @@
 
 // module.exports = new Database();
 
-const { Pool } = require('pg');
+// const { Pool } = require('pg');
 
-const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
+// const CONNECTION_STRING = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/weather-db';
 
-const pool = new Pool({
-  connectionString: CONNECTION_STRING,
-});
+// const pool = new Pool({
+//   connectionString: CONNECTION_STRING,
+// });
 
-pool.connect();
+// pool.connect();
 
-module.exports = pool;
+// module.exports = pool;
 
-// require('dotenv').config();
-// const { Client } = require('pg');
+require('dotenv').config();
+const { Client } = require('pg');
 
-// const dbSetting = process.env.DATABASE_URL ?
-//     {
-//         connectionString: process.env.DATABASE_URL,
-//         ssl: {
-//             rejectUnauthorized: false
-//         }
-//     }
-//     :
-//     {
-//         user: process.env.POSTGRE_USER,
-//         host: process.env.POSTGRE_HOST,
-//         database: process.env.POSTGRE_LOCAL_DATABASE,
-//         password: process.env.POSTGRE_password,
-//         port: process.env.POSTGRE_PORT
-//     }
+const dbSetting = process.env.DATABASE_URL ?
+    {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    }
+    :
+    {
+        user: process.env.POSTGRE_USER,
+        host: process.env.POSTGRE_HOST,
+        database: process.env.POSTGRE_LOCAL_DATABASE,
+        password: process.env.POSTGRE_password,
+        port: process.env.POSTGRE_PORT
+    }
 
-// const db = new Client(dbSetting);
+const db = new Client(dbSetting);
 
-// db.connect();
+db.connect();
 
-// module.exports = db;
+module.exports = db;
