@@ -28,6 +28,10 @@ class App extends Component {
     };
   }
 
+  handleInputChange = (e) => {
+    this.setState({ newCityName: e.target.value });
+  };
+
   getCityList = async () => {
     try {
       const res = await fetch('/api/cities');
@@ -41,11 +45,7 @@ class App extends Component {
     }
   };
 
-  handleInputChange = (e) => {
-    this.setState({ newCityName: e.target.value });
-  };
-
-  handleAddCity = () => {
+  handleAddCity = async () => {
     let input = this.state.newCityName.trim();
     if (!input) {
       return this.setState({ weather: null, error: 'Please input a city name.', newCityName: '' });
@@ -54,32 +54,33 @@ class App extends Component {
     let lowerCase = input.toLowerCase();
     let city = lowerCase.split(' ').map(a => a[0].toUpperCase() + a.slice(1)).join(' ');
 
-    fetch(`/api/weather/${city}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.type === 'error') {
-          throw new Error(data.message);
-        }
-        else {
-          this.setState({ newCityName: '', weather: data, error: '' });
-          return fetch('/api/cities', {
-            method: 'post',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ city })
-          })
-        }
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.type === 'error' && res.message === `duplicate key value violates unique constraint "cities_city_name_key"`) {
+    try {
+      const weatherRes = await fetch(`/api/weather/${city}`);
+      const weatherData = await weatherRes.json();
+
+      if (weatherData.type === 'error') {
+        throw new Error(weatherData.message);
+      }
+      else {
+        this.setState({ newCityName: '', weather: weatherData, error: '' });
+
+        const addNewCityRes = await fetch('/api/cities', {
+          method: 'post',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city })
+        });
+
+        const addNewCityData = await addNewCityRes.json();
+
+        if (addNewCityData.type === 'error' && addNewCityData.message === `duplicate key value violates unique constraint "cities_city_name_key"`) {
           throw new Error('Duplicate city name.');
         }
-        this.getCityList();
         this.setState({ newCityName: '' });
-      })
-      .catch(err => {
-        return this.setState({ weather: null, error: err.message});
-      });
+        await this.getCityList();
+      }
+    } catch (err) {
+      return this.setState({ weather: null, error: err.message });
+    }
   };
 
   handleChangeCityAndGetWeather = async (e) => {
@@ -91,7 +92,7 @@ class App extends Component {
       if (data.type === 'error') {
         return this.setState({ weather: null, error: data.message });
       }
-      else return this.setState({ weather: data, error: '' });
+      return this.setState({ weather: data, error: '' });
     } catch (err) {
       console.log(err);
     }
@@ -105,13 +106,14 @@ class App extends Component {
     return (
       <Container fluid className="centered">
         <Navbar dark color="dark">
-          <NavbarBrand href="/">MyWeather</NavbarBrand>
+          <NavbarBrand href="/">My Weather</NavbarBrand>
         </Navbar>
         <Row>
           <Col>
             <Jumbotron>
-              <h1 className="display-3">MyWeather</h1>
+              <h1 className="display-3">My Weather</h1>
               <p className="lead">The current weather for your favorite cities!</p>
+
               <InputGroup>
                 <Input
                   placeholder="New city name..."
@@ -121,8 +123,8 @@ class App extends Component {
                 <InputGroupAddon addonType="append">
                   <Button color="primary" onClick={this.handleAddCity}>Add City</Button>
                 </InputGroupAddon>
-
               </InputGroup>
+
             </Jumbotron>
           </Col>
         </Row>
@@ -146,7 +148,6 @@ class App extends Component {
               <Weather data={this.state.weather} />
           }
         </div>
-
       </Container>
     );
   }
