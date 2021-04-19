@@ -1,6 +1,6 @@
 __`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, __dirname, full-stack app file structure, Callback function order, Frontend options input.`__
 
-## Important: Heroku hobby postgreSQL is just supporting Client way (not pool) way to connect.
+## Important: Heroku hobby postgreSQL just only support Client way (not pool) to connect.
 
 <p align="center">
 <img src="./assets/weather-01.png" width=90%>
@@ -65,8 +65,10 @@ weather-db=# \dt
 weather-db=# \c postgres
 ```
 
-- [stackoverflow](https://stackoverflow.com/questions/17963348/how-to-disconnect-from-a-database-and-go-back-to-the-default-database-in-postgre)
-- [postgre CLI](https://www.datacamp.com/community/tutorials/10-command-line-utilities-postgresql)
+- Related info:
+
+  - [stackoverflow](https://stackoverflow.com/questions/17963348/how-to-disconnect-from-a-database-and-go-back-to-the-default-database-in-postgre)
+  - [postgre CLI](https://www.datacamp.com/community/tutorials/10-command-line-utilities-postgresql)
 
 ------------------------------------------------------------
 
@@ -85,6 +87,8 @@ $ npm run dev
 
 # Web development tools (Part 29)
 
+- Updated on 4/19/21
+
 - #### Click here: [BACK TO NAVIGASTION](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/README.md)
 
 ## `Section: Deploy.` (Basic)
@@ -98,9 +102,10 @@ $ npm run dev
 - cookie-parser
 - dotenv
 - express
-- pg :star:(8.3.0)
+- pg
 - request
 - request-promise
+- cors(new)
 
 `Frontend:`
 - bootstrap
@@ -117,22 +122,22 @@ $ npm run dev
 #### `本章背景：`
 - 本章是一个很简单的部署全栈应用程序的教程，使用的技术栈包括：React，Node，Express，Postgres，部署平台是 Heroku。
 
-- 本实例有三个特点，第一个是全栈部署，第二是使用 Postgres 部署，有比较大的实用指导意义，第三时作者对于 SQL database 的设置比较原生，也是一个很好学习的机会。
+- 本实例有三个特点，第一个是全栈部署，第二是使用 Postgres 部署，注意这里使用的是 client 方式连接 postgres， 之前的 pool 方式已经不适用于 hobby free 模式。第三个特点是使用 pg 库连接数据库，查询方式比较原生。
 
-- 自己对原本的文件结构进行调整，对应的 package.json 也进行了修改，是一个很好的学习机会。[heroku customize nodejs scripts](https://devcenter.heroku.com/articles/nodejs-support)
+- 自己对原本的文件结构进行调整，对应的 package.json script 进行了修改。[heroku customize nodejs scripts](https://devcenter.heroku.com/articles/nodejs-support)
 
 ------------------------------------------------------------
 - 设计思路：
 
-1. 后端思路：重点是 pool 的设置。
+1. 后端思路：重点是 client 的设置。
 
 2. 前端思路：正常设置，还有配置 proxy。
 
-3. 可以补充的工作：
-    - 加入 redis & Authentication。
-    - 增加前端错误信息显示条，比如说前端和后端都遇到错误，前端进行页面跳转并显示来自后端的错误信息。
-    - 提升 code 的逻辑，减少重复。
-    - 增加 errorHandler。
+3. 后期步补充工作：
+  - 加入了错误管理：
+    1. 输入为不规范的大小写城市名时，可以对其进行规范后储存到数据库，如 `NEw YoRk => New York`
+    2. 输入为空白格时显示错误
+    3. 输入为不存在的城市时显示错误。
 ------------------------------------------------------------
 
 ### <span id="29.0">`Brief Contents & codes position`</span>
@@ -144,7 +149,7 @@ $ npm run dev
 - [29.3 Frontend setup.](#29.3)
 - [29.4 Deploy in heroku.](#29.4)
 - [29.5 Re-deploy.](#29.5)
-- [29.6 ‘pg’ Dependency version update.](#29.6)
+- [29.6 (LEGACY) ‘pg’ Dependency version update.](#29.6)
 - [29.7 PostgreSQL pool.](#29.7)
 
 ------------------------------------------------------------
@@ -155,134 +160,12 @@ $ npm run dev
 
 1. 传统的 fullstack 文件结构（网上常见的 heroku deploy 教程结构），[查看这里：Weather-RNEP-heroku-old](https://github.com/DonghaoWu/Weather-RNEP-heroku-old)
 
-  - 之前的结构是把前端 app 放在大文件夹里面，前端 app 有自己的 package.json，但是后端 app 不是独立的，它跟全局共用一个 package.json，所以之前一共有两个 package.json，分别是：
-
-  __`Location:./package.json`__
-
-  ```json
-  {
-    "name": "postgres-deploy-heroku",
-    "version": "1.0.0",
-    "description": "A tutorial about deploy a postgres fullstack application.",
-    "main": "index.js",
-    "scripts": {
-      "dev": "concurrently \"npm run server\" \"npm run client\"",
-      "client": "npm start --prefix client",
-      "server": "nodemon server",
-      "start": "node server",
-      "heroku-postbuild": "cd client && npm install && npm run build"
-    },
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
-    },
-    "keywords": [
-      "postgres-deploy-heroku"
-    ],
-    "author": "Donghao",
-    "license": "ISC",
-    "bugs": {
-      "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
-    },
-    "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
-    "devDependencies": {
-      "concurrently": "^5.2.0",
-      "nodemon": "^2.0.4"
-    },
-    "dependencies": {
-      "body-parser": "^1.19.0",
-      "cookie-parser": "^1.4.5",
-      "dotenv": "^8.2.0",
-      "express": "^4.17.1",
-      "pg": "^8.3.0",
-      "request": "^2.88.2",
-      "request-promise": "^4.2.6"
-    }
-  }
-  ```
-
-  __`Location:./client/package.json`__
-
-  ```json
-    
-  {
-    "name": "client",
-    "version": "0.1.0",
-    "private": true,
-    "dependencies": {
-      "bootstrap": "^4.3.1",
-      "lodash": "^4.17.19",
-      "lodash.template": "^4.5.0",
-      "merge": "^1.2.1",
-      "react": "^16.5.1",
-      "react-dom": "^16.5.1",
-      "react-scripts": "^3.4.1",
-      "reactstrap": "^6.4.0"
-    },
-    "scripts": {
-      "start": "react-scripts start",
-      "build": "react-scripts build",
-      "test": "react-scripts test --env=jsdom",
-      "eject": "react-scripts eject"
-    },
-    "proxy": "http://localhost:5000",
-    "browserslist": {
-      "production": [
-        ">0.2%",
-        "not dead",
-        "not op_mini all"
-      ],
-      "development": [
-        "last 1 chrome version",
-        "last 1 firefox version",
-        "last 1 safari version"
-      ]
-    }
-  }
-  ```
+  - 之前的结构是把前端 app 放在大文件夹里面，前端 app 有自己的 package.json，但是后端 app 不是独立的，它跟全局共用一个 package.json，所以 :star: `之前` :star: 一共有两个 package.json 文件。
 
 2. 修改后，把后端 app 独立起来，使后端 app 有自己的 package.json，这需要把一些 dependency 转移到 server 文件夹中，同时对根目录的 package.json 进行修改。
 
 ```diff
 + ./client/package.json 不用修改
-```
-
-__`Location:./package.json`__
-
-```diff
-{
-  "name": "postgres-deploy-heroku",
-  "version": "1.0.0",
-  "description": "A tutorial about deploy a postgres fullstack application.",
-  "main": "index.js",
-  "scripts": {
-+   "installAll": "concurrently \"npm run installServer\" \"npm run installClient\"",
-+   "installServer": "cd server && npm install",
-+   "installClient": "cd client && npm install",
-+   "dev": "concurrently \"npm run server\" \"npm run client\"",
-+   "client": "npm start --prefix client",
-+   "server": "npm run server --prefix server",
-+   "start": "npm start --prefix server",
-+   "heroku-prebuild": "cd server && npm install",
-+   "heroku-postbuild": "cd client && npm install && npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
-  },
-  "keywords": [
-    "postgres-deploy-heroku"
-  ],
-  "author": "Donghao",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
-  },
-  "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
-  "devDependencies": {
-+   "concurrently": "^5.2.0"
-  }
-}
 ```
 
 __`Location:./server/package.json`__
@@ -300,21 +183,63 @@ __`Location:./server/package.json`__
   "author": "",
   "license": "ISC",
   "dependencies": {
-+   "body-parser": "^1.19.0",
-+   "cookie-parser": "^1.4.5",
-+   "dotenv": "^8.2.0",
-+   "express": "^4.17.1",
-+   "pg": "^8.3.0",
-+   "request": "^2.88.2",
-+   "request-promise": "^4.2.6"
++    "body-parser": "^1.19.0",
++    "cookie-parser": "^1.4.5",
++    "cors": "^2.8.5",
++    "dotenv": "^8.2.0",
++    "express": "^4.17.1",
++    "pg": "^8.6.0",
++    "request": "^2.88.2",
++    "request-promise": "^4.2.6"
   },
   "devDependencies": {
-+   "nodemon": "^2.0.4"
++    "nodemon": "^2.0.4"
   }
 }
 ```
+
+__`Location:./package.json`__
+
+```diff
+{
+  "name": "postgres-deploy-heroku",
+  "version": "1.0.0",
+  "description": "A tutorial about deploy a postgres fullstack application.",
+  "main": "index.js",
+  "scripts": {
++    "installServer": "cd server && npm install",
++    "installClient": "cd client && npm install",
++    "installAll": "concurrently \"npm run installServer\" \"npm run installClient\"",
++    "dev": "concurrently \"npm run server\" \"npm run client\"",
++    "client": "npm start --prefix client",
++    "server": "npm run server --prefix server",
++    "start": "npm start --prefix server",
++    "configure-db-local": "sh configure_db_local.sh",
++    "configure-db-heroku": "sh configure_db_heroku.sh",
++    "heroku-prebuild": "cd server && npm install",
++    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonghaoWu/deploy-example-heroku.git"
+  },
+  "keywords": [
+    "postgres-deploy-heroku"
+  ],
+  "author": "Donghao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DonghaoWu/deploy-example-heroku/issues"
+  },
+  "homepage": "https://github.com/DonghaoWu/deploy-example-heroku#readme",
+  "devDependencies": {
++    "concurrently": "^5.2.0"
+  }
+}
+```
+
 #### `Comment:`
-1. 修改文件结构确实使工作量增多了，但这样做能够最大程度保持前端 app 和后端 app 能独立一个文件夹，使用起来会清楚很多。
+1. 现在已经习惯了前后端分开两个文件夹的开发习惯。
 
 ### <span id="29.2">`Step2: Backend setup.`</span>
 
@@ -322,52 +247,7 @@ __`Location:./server/package.json`__
 
 #### Backend 主要是聚焦在 Database 的设置不一样上面。
 
-1. 之前 smart-brain-prod 的 postgreSQL 设置：
-
-```js
-// Step 1, 定义 route function
-const handleProfileGet = (req, res, db) => {
-  const { id } = req.params;
-  db.select('*').from('users').where({ id })
-    .then(user => {
-      if (user.length) {
-        res.json(user[0])
-      } else {
-        res.status(400).json('Not found')
-      }
-    })
-    .catch(err => res.status(400).json('error getting user'))
-}
-
-// Step 2, Database Setup
-const knex = require('knex');
-
-const db = knex({
-  client: process.env.POSTGRES_CLIENT,
-  connection: {
-    host: process.env.POSTGRES_HOST,
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB
-  }
-});
-
-// Step 3, 应用，在 route 中调用 function。
-app.get('/profile/:id', auth.requireAuth, (req, res) => { handleProfileGet(req, res, db) })
-```
-
-- 或者
-```js
-// Step 2, Database Setup
-const knex = require('knex');
-
-const db = knex({
-  client: 'pg',
-  connection: process.env.POSTGRES_URI
-});
-```
-
-2. 本例的 postgreSQL 设置：
+1. 本地能使用的 pool 设置
 
 ```js
 // Step 1, Database Setup
@@ -412,143 +292,139 @@ class Database {
 module.exports = new Database();
 ```
 
+2. :star::star::star: 现在能够在 `本地和 heroku hobby free` 模式上使用的 client 模式。
+
 ```js
-// Step 2, 定义route function
+require('dotenv').config();
+const { Client } = require('pg');
+
+const dbSetting = process.env.DATABASE_URL ?
+    {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    }
+    :
+    {
+        user: process.env.POSTGRE_USER,
+        host: process.env.POSTGRE_HOST,
+        database: process.env.POSTGRE_LOCAL_DATABASE,
+        password: process.env.POSTGRE_password,
+        port: process.env.POSTGRE_PORT
+    }
+
+const db = new Client(dbSetting);
+
+db.connect();
+
+module.exports = db;
+```
+
+3. 对应的 city method
+```js
 const db = require('../database');
 
 class Cities {
-  static retrieveAll (callback) {
-    db.query('SELECT city_name from cities', (err, res) => {
-      let result = err.error ? err : res;
-      callback(result);
-    });
+  static retrieveAll() {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT city_name from cities', (err, res) => {
+        if (err) return reject(err);
+        resolve({ cities: res.rows })
+      });
+    })
   }
 
-  static insert (city, callback) {
-    db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
-      let result = err.error ? err : res;
-      callback(result);
-    });
+  static insert({ city }) {
+    return new Promise((resolve, reject) => {
+      db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
+        if (err) return reject(err);
+        resolve({ message: `Insert a new city ${city} success!` });
+      });
+    })
   }
 }
 
 module.exports = Cities;
 ```
 
+4. 对应的 city api。
+
 ```js
-// Step 3, 应用，在 route 中调用 function。
 let express = require('express');
 let Cities = require('../models/cities');
 
 let router = express.Router();
 
-router.get('/', (req, res) => {
-  Cities.retrieveAll((result) => {
-    return res.json(result);
-  });
+router.get('/', async (req, res, next) => {
+  try {
+    const { cities } = await Cities.retrieveAll();
+    return res.json(cities);
+  } catch (error) {
+    return next(error);
+  }
 });
 
-router.post('/', (req, res) => {
-  let city = req.body.city;
+router.post('/', async (req, res, next) => {
+  try {
+    let city = req.body.city;
+    const { message } = await Cities.insert({ city });
+    return res.json(message);
+  } catch (error) {
+    return next(error);
+  }
+});
 
-  Cities.insert(city, (result) => {
-    return res.json(result);
-  });
+module.exports = router;
+```
+
+5. 对应的 weather query。
+
+```js
+const request = require('request-promise');
+
+class Weather {
+  static retrieveByCity({ city }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const weather = await request({
+          uri: `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${process.env.WEATHER_API}&units=imperial`,
+          json: true
+        });
+        resolve({ weather });
+      } catch (err) {
+        reject(err.error)
+      }
+    })
+  }
+}
+
+module.exports = Weather;
+```
+
+6. 对应的 weather api。
+
+```js
+let express = require('express');
+let Weather = require('../models/weather');
+
+let router = express.Router();
+
+router.get('/:city', async (req, res, next) => {
+  try {
+    let city = req.params.city;
+    const { weather } = await Weather.retrieveByCity({ city });
+    return res.json(weather);
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = router;
 ```
 
 #### `Comment:`
-1. 很明显，本例中使用的 database 设置更复杂更原生，值得学习，而且这里使用了 跟 smart-brain 不一样的 __`pool 概念`__。
-
-2. 试图分析这种原生设置的调用顺序：
-
-```diff
-+ API call: `/`
-+ client.query('SELECT city_name from cities', [], callback-A);
-
-
-+ success:
-+ callback-A({}, res.rows); //db.query('SELECT city_name from cities', callback-A);
-+ callback-B(res); // retrieveAll (callback-B)
-
-
-- failed
-- callback-A({ error: 'Database error.' }, null); //db.query('SELECT city_name from cities', callback-A);
-- callback-B(err); // retrieveAll (callback-B)
-```
-
-
-<p align="center">
-<img src="./assets/p29-03.png" width=90%>
-</p>
-
------------------------------------------------------------------
-
-3. 从代码可知，有两个函数是原生的，包括
-
-```js
-this._pool.on(param, callback) // callback(err, client)
-this._pool.connect(callback) // callback(err, client, done)
-client.query(param1, param2, callback) // client 来自 this._pool.connect(callback) 中 callback 的第二个参数。
-```
-
-4. 为了方便理解，上面的代码跟源代码有点区别，原版是：
-
-```js
-// Step 2, 定义route function
-const db = require('../database');
-
-class Cities {
-  static retrieveAll (callback) {
-    db.query('SELECT city_name from cities', (err, res) => {
-      if (err.error)
-        return callback(err);
-      callback(res);
-    });
-  }
-
-  static insert (city, callback) {
-    db.query('INSERT INTO cities (city_name) VALUES ($1)', [city], (err, res) => {
-      if (err.error)
-        return callback(err);
-      callback(res);
-    });
-  }
-}
-
-module.exports = Cities;
-```
-
-```js
-// Step 3, 应用，在 route 中调用 function。
-let express = require('express');
-let Cities = require('../models/cities');
-
-let router = express.Router();
-
-router.get('/', (req, res) => {
-  Cities.retrieveAll((err, cities) => {
-    if (err)
-      return res.json(err);
-    return res.json(cities);
-  });
-});
-
-router.post('/', (req, res) => {
-  let city = req.body.city;
-
-  Cities.insert(city, (err, result) => {
-    if (err)
-      return res.json(err);
-    return res.json(result);
-  });
-});
-
-module.exports = router;
-```
-
+1. 以上是很原生的 pg query 设计。
 
 ### <span id="29.3">`Step3: Frontend setup.`</span>
 
@@ -592,43 +468,79 @@ class App extends Component {
     this.state = {
       weather: null,
       cityList: [],
-      newCityName: ''
+      newCityName: '',
+      error: '',
     };
   }
-
-  getCityList = () => {
-    fetch('/api/cities')
-      .then(res => res.json())
-      .then(res => {
-        let cityList = res.map(r => r.city_name);
-        this.setState({ cityList });
-      });
-  };
 
   handleInputChange = (e) => {
     this.setState({ newCityName: e.target.value });
   };
 
-  handleAddCity = () => {
-    fetch('/api/cities', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city: this.state.newCityName })
-    })
-      .then(res => res.json())
-      .then(res => {
-        this.getCityList();
-        this.setState({ newCityName: '' });
-      });
+  getCityList = async () => {
+    try {
+      const res = await fetch('/api/cities');
+      const data = await res.json();
+
+      let cityList = data.map(r => r.city_name);
+      this.setState({ cityList });
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  handleChangeCityAndGetWeather = (e) => {
-    let city = e.target.value;
-    fetch(`/api/weather/${city}`)
-      .then(res => res.json())
-      .then(weather => {
-        this.setState({ weather });
-      });
+  handleAddCity = async () => {
+    let input = this.state.newCityName.trim();
+    if (!input) {
+      return this.setState({ weather: null, error: 'Please input a city name.', newCityName: '' });
+    }
+
+    let lowerCase = input.toLowerCase();
+    let city = lowerCase.split(' ').map(a => a[0].toUpperCase() + a.slice(1)).join(' ');
+
+    try {
+      const weatherRes = await fetch(`/api/weather/${city}`);
+      const weatherData = await weatherRes.json();
+
+      if (weatherData.type === 'error') {
+        throw new Error(weatherData.message);
+      }
+      else {
+        this.setState({ newCityName: '', weather: weatherData, error: '' });
+
+        const addNewCityRes = await fetch('/api/cities', {
+          method: 'post',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city })
+        });
+
+        const addNewCityData = await addNewCityRes.json();
+
+        if (addNewCityData.type === 'error' && addNewCityData.message === `duplicate key value violates unique constraint "cities_city_name_key"`) {
+          throw new Error('Duplicate city name.');
+        }
+        this.setState({ newCityName: '' });
+        await this.getCityList();
+      }
+    } catch (err) {
+      return this.setState({ weather: null, error: err.message });
+    }
+  };
+
+  handleChangeCityAndGetWeather = async (e) => {
+    try {
+      let city = e.target.value;
+      let res = await fetch(`/api/weather/${city}`);
+      let data = await res.json();
+
+      if (data.type === 'error') {
+        return this.setState({ weather: null, error: data.message });
+      }
+      return this.setState({ weather: data, error: '' });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   componentDidMount() {
@@ -639,13 +551,14 @@ class App extends Component {
     return (
       <Container fluid className="centered">
         <Navbar dark color="dark">
-          <NavbarBrand href="/">MyWeather</NavbarBrand>
+          <NavbarBrand href="/">My Weather</NavbarBrand>
         </Navbar>
         <Row>
           <Col>
             <Jumbotron>
-              <h1 className="display-3">MyWeather</h1>
+              <h1 className="display-3">My Weather</h1>
               <p className="lead">The current weather for your favorite cities!</p>
+
               <InputGroup>
                 <Input
                   placeholder="New city name..."
@@ -655,8 +568,8 @@ class App extends Component {
                 <InputGroupAddon addonType="append">
                   <Button color="primary" onClick={this.handleAddCity}>Add City</Button>
                 </InputGroupAddon>
-
               </InputGroup>
+
             </Jumbotron>
           </Col>
         </Row>
@@ -672,7 +585,14 @@ class App extends Component {
             </FormGroup>
           </Col>
         </Row>
-        <Weather data={this.state.weather} />
+        <div>
+          {
+            this.state.error ?
+              <p style={{ color: "red" }}> {this.state.error}</p>
+              :
+              <Weather data={this.state.weather} />
+          }
+        </div>
       </Container>
     );
   }
@@ -682,7 +602,7 @@ export default App;
 ```
 
 #### `Comment:`
-1. `这里有一个新应用，就是 option 的 handle function 的书写。`
+1. 这里新增一个重要的逻辑，就是在 handleAddCity 增加 city 的时候，先调用 weather api 查询，如果返回错误，就不储存，如果有结果返回就把城市名字储存到 database 中。
 
 ### <span id="29.4">`Step4: Deploy in heroku.`</span>
 
@@ -693,6 +613,7 @@ export default App;
 __`Location:./server/index.js`__
 
 ```js
+const path = require('path');
 const ENV = process.env.NODE_ENV;
 
 if(ENV === 'production'){
@@ -715,13 +636,17 @@ path.join(__dirname, '../client/build')
 
 2. Bash heroku 命令 (先注册 heroku 账户)：:star::star::star:
 
+- 创建 heroku app 和 db。
 ```bash
 $ heroku login  # 登录 heroku
 $ heroku create <your-app-name> # 定制 app 名字
 $ heroku addons:create heroku-postgresql:hobby-dev --name=<your-db-name> # 新增一个 postgreSQL 的 database。
 
 $ heroku addons:attach <your-db-name> --app=<your-app-name> # 设定 app 和 db 对接
+```
 
+- 创建 table
+```bash
 $ heroku pg:psql --app <your-app-name> # 进入 app 对应的 db 的命令行
 
 $ =>CREATE TABLE cities (
@@ -731,7 +656,30 @@ $ =>CREATE TABLE cities (
 ); # 逐行输入，记得最后输入 `;` 表示结束。
 
 \q # 退出 app 对应的 db 的命令行
+```
 
+- 创建 table 也可以使用本地 script
+
+```bash
+$ npm run configure-db-heroku
+```
+
+- 上面 script 对应的 sh 文件
+
+```sh
+#!/bin/bash
+
+echo "Configuring heroku postgre database (weather app)..."
+
+heroku pg:reset DATABASE
+
+heroku pg:psql < ./server/bin/sql/city.sql
+
+echo "Heroku postgre database (weather app) configured!"
+```
+
+- Deploy.
+```bash
 $ git add .
 $ git commit -m'ready for deploy'
 $ git push
@@ -780,13 +728,15 @@ $ git push heroku master
 2. 指定连接特定的 heroku app (option)
 
 ```bash
-$ heroku git:remote -a weather-app-demo-2020 # <specify-app-name>
+$ heroku git:remote -a <specify-app-name>
 ```
 
 #### `Comment:`
 1. 
 
-### <span id="29.6">`Step6: ‘pg’ Dependency version update.`</span>
+#### :star:`以下内容都是关于 pool 设置的，在最新更新中不会用到。`
+
+### <span id="29.6">`(LEGACY)Step6: ‘pg’ Dependency version update.`</span>
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
