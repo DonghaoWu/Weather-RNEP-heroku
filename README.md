@@ -122,7 +122,7 @@ $ npm run dev
 #### `本章背景：`
 - 本章是一个很简单的部署全栈应用程序的教程，使用的技术栈包括：React，Node，Express，Postgres，部署平台是 Heroku。
 
-- 本实例有三个特点，第一个是全栈部署，第二是使用 Postgres 部署，注意这里使用的是 client 方式连接 postgres， 之前的 pool 方式已经不适用于 hobby free 模式。第三个特点是使用 pg 库连接数据库，查询方式比较原生。
+- 本实例有三个特点，第一个是全栈部署，第二是使用 Postgres 部署，注意这里使用的是 client 方式连接 postgres， 之前的 pool 方式已经不适用于 hobby free 模式。第三个特点是使用 pg 库连接数据库，查询方式比较原生。
 
 - 自己对原本的文件结构进行调整，对应的 package.json script 进行了修改。[heroku customize nodejs scripts](https://devcenter.heroku.com/articles/nodejs-support)
 
