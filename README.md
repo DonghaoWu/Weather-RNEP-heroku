@@ -150,7 +150,6 @@ $ npm run dev
 - [29.4 Deploy in heroku.](#29.4)
 - [29.5 Re-deploy.](#29.5)
 - [29.6 (LEGACY) ‘pg’ Dependency version update.](#29.6)
-- [29.7 PostgreSQL pool.](#29.7)
 
 ------------------------------------------------------------
 
@@ -379,7 +378,7 @@ router.post('/', async (req, res, next) => {
 module.exports = router;
 ```
 
-5. 对应的 weather query。
+5. 对应的 weather method
 
 ```js
 const request = require('request-promise');
@@ -425,7 +424,7 @@ module.exports = router;
 ```
 
 #### `Comment:`
-1. 以上是很原生的 pg query 设计。
+1. 以上是原生的 pg query 设计。
 
 ### <span id="29.3">`Step3: Frontend setup.`</span>
 
@@ -637,58 +636,59 @@ path.join(__dirname, '../client/build')
 
 2. Bash heroku 命令 (先注册 heroku 账户)：:star::star::star:
 
-- 创建 heroku app 和 db。
-```bash
-$ heroku login  # 登录 heroku
-$ heroku create <your-app-name> # 定制 app 名字
-$ heroku addons:create heroku-postgresql:hobby-dev --name=<your-db-name> # 新增一个 postgreSQL 的 database。
+    2.1 创建 heroku app 和 db。
+    
+    ```bash
+    $ heroku login  # 登录 heroku
+    $ heroku create <your-app-name> # 定制 app 名字
+    $ heroku addons:create heroku-postgresql:hobby-dev --name=<your-db-name> # 新增一个 postgreSQL 的 database。
 
-$ heroku addons:attach <your-db-name> --app=<your-app-name> # 设定 app 和 db 对接
-```
+    $ heroku addons:attach <your-db-name> --app=<your-app-name> # 设定 app 和 db 对接
+    ```
 
-- 创建 table
-```bash
-$ heroku pg:psql --app <your-app-name> # 进入 app 对应的 db 的命令行
+    2.2 创建 table
+    ```bash
+    $ heroku pg:psql --app <your-app-name> # 进入 app 对应的 db 的命令行
 
-$ =>CREATE TABLE cities (
-	id serial NOT NULL,
-	city_name character varying(50) NOT NULL,
-	PRIMARY KEY (id)
-); # 逐行输入，记得最后输入 `;` 表示结束。
+    $ =>CREATE TABLE cities (
+      id serial NOT NULL,
+      city_name character varying(50) NOT NULL,
+      PRIMARY KEY (id)
+    ); # 逐行输入，记得最后输入 `;` 表示结束。
 
-\q # 退出 app 对应的 db 的命令行
-```
+    \q # 退出 app 对应的 db 的命令行
+    ```
 
-- 创建 table 也可以使用本地 script
+    2.2 创建 table 也可以使用本地 script
 
-```bash
-$ npm run configure-db-heroku
-```
+    ```bash
+    $ npm run configure-db-heroku
+    ```
 
-- 上面 script 对应的 sh 文件
+    - 上面 script 对应的 sh 文件
 
-```sh
-#!/bin/bash
+    ```sh
+    #!/bin/bash
 
-echo "Configuring heroku postgre database (weather app)..."
+    echo "Configuring heroku postgre database (weather app)..."
 
-heroku pg:reset DATABASE
+    heroku pg:reset DATABASE
 
-heroku pg:psql < ./server/bin/sql/city.sql
+    heroku pg:psql < ./server/bin/sql/city.sql
 
-echo "Heroku postgre database (weather app) configured!"
-```
+    echo "Heroku postgre database (weather app) configured!"
+    ```
 
-- Deploy.
-```bash
-$ git add .
-$ git commit -m'ready for deploy'
-$ git push
-$ git push heroku master
+    2.3 Deploy.
+    ```bash
+    $ git add .
+    $ git commit -m'ready for deploy'
+    $ git push
+    $ git push heroku master
 
-$ heroku ps:scale web=1
-$ heroku open
-```
+    $ heroku ps:scale web=1
+    $ heroku open
+    ```
 
 
 <p align="center">
