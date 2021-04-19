@@ -1,18 +1,20 @@
 __`KEY_WORD: Heroku deploy addon postgreSQL, PostgreSQL pool, package.json scrips, __dirname, full-stack app file structure, Callback function order, Frontend options input.`__
 
+## Important: Heroku hobby postgreSQL is just supporting Client way (not pool) way to connect.
+
 <p align="center">
 <img src="./assets/weather-01.png" width=90%>
 </p>
 
 ---------------------------------------------------
 
-- Check the deploy app here. [Weather app heroku link.](https://weather-app-demo-2020.herokuapp.com/)
+- Check the deploy app here. [Weather app heroku link.](https://myweather-app-2021.herokuapp.com/)
 
 - Click here: [BACK TO NAVIGASTION](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/README.md).
 
 ------------------------------------------------------------
 # Full Stack React App Tutorial
-A simple weather app, built for my full stack React app tutorial. Also features Reactstrap, Express, and PostgreSQL.
+A simple weather app, built for a full stack React app tutorial. Also features Reactstrap, Express, and PostgreSQL.
 
 This tutorial is from [Develop and Deploy a Full Stack React App](https://brycestpierre.com/full-stack-react-app/), by By Bryce St. Pierre. Thanks for his hard work and help! 
 
@@ -28,19 +30,22 @@ $ npm run installAll
 
 2. Sign up and get your own Weather api key in [https://openweathermap.org/](https://openweathermap.org/)
 
-3. Create a new file call '.env'.
+3. Create a new file call '.env' in folder `server`.
 
 __`Location:./server/.env`__
-```js
-WEATHER_API=dd9999999999999999999999 // <-- replace with your api key
+
+```bash
+WEATHER_API=you api key here // <-- replace with your api key
 ```
 
-4. Download, install [postgreSQL](https://www.postgresql.org/) and [Postico](https://eggerapps.at/postico/).
-- Create a local database in Postgres.(Here we use Postico GUI.)
+4. Download, install [postgreSQL](https://www.postgresql.org/).
+- Create a local database in Postgres local.
 
-<p align="center">
-<img src="./assets/p29-01.png" width=90%>
-</p>
+```bash
+$ psql --username=postgres
+
+postgres=# 
+```
 
 ------------------------------------------------------------
 
