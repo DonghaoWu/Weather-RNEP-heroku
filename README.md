@@ -245,7 +245,7 @@ __`Location:./package.json`__
 
 - #### Click here: [BACK TO CONTENT](#29.0)
 
-#### Backend 主要是聚焦在 Database 的设置不一样上面。
+  #### Backend 主要是聚焦在 Database 的设置不一样上面。
 
 1. 本地能使用的 pool 设置
 
@@ -292,7 +292,7 @@ class Database {
 module.exports = new Database();
 ```
 
-2. :star::star::star: 现在能够在 `本地和 heroku hobby free` 模式上使用的 client 模式。
+2. :star::star::star: 4/19/2021 能够在 `本地和 heroku hobby free` 模式上使用的 client 模式。
 
 ```js
 require('dotenv').config();
@@ -321,7 +321,8 @@ db.connect();
 module.exports = db;
 ```
 
-3. 对应的 city method
+3. 对应的 city method.
+
 ```js
 const db = require('../database');
 
