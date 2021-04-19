@@ -21,6 +21,7 @@ This tutorial is from [Develop and Deploy a Full Stack React App](https://bryces
 #### Instruction about running application locally.
 
 1. Run commands in terminal
+
 ```bash
 $ git clone <github-link>
 $ cd <folder-name>
@@ -39,33 +40,44 @@ WEATHER_API=you api key here // <-- replace with your api key
 ```
 
 4. Download, install [postgreSQL](https://www.postgresql.org/).
-- Create a local database in Postgres local.
+
+- Start your local postgreSQL server.
+
+- Create a local database in Postgres and a new table locally.
 
 ```bash
+$ createdb -U postgres weather-db
+
 $ psql --username=postgres
 
-postgres=# 
-```
+postgres=# \l
 
-------------------------------------------------------------
+postgres=# \c weather-db
 
-5. Create a table.
-
-<p align="center">
-<img src="./assets/p29-02.png" width=90%>
-</p>
-
-```sql
-CREATE TABLE cities (
+weather-db=# CREATE TABLE cities (
 	id serial NOT NULL,
-	city_name character varying(50) NOT NULL,
+	city_name character varying(50) NOT NULL UNIQUE,
 	PRIMARY KEY (id)
-)
+);
+
+weather-db=# \dt
+
+weather-db=# \c postgres
+```
+
+- [stackoverflow](https://stackoverflow.com/questions/17963348/how-to-disconnect-from-a-database-and-go-back-to-the-default-database-in-postgre)
+- [postgre CLI](https://www.datacamp.com/community/tutorials/10-command-line-utilities-postgresql)
+
+------------------------------------------------------------
+
+5. Or simplly, we can run the script.
+
+```bash
+npm run configure-db-local
 ```
 ------------------------------------------------------------
 
-
-5. Run the app in local.
+6. Run the app in local.
 ```bash
 $ npm run dev
 ```
