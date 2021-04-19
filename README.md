@@ -735,7 +735,7 @@ $ heroku git:remote -a <specify-app-name>
 #### `Comment:`
 1. 
 
-#### :stop:`以下内容都是关于 pool 设置的，在最新更新中不会用到。`
+#### :x:`以下内容都是关于 pool 设置的，在最新更新中不会用到。`
 
 ### <span id="29.6">`(LEGACY)Step6: ‘pg’ Dependency version update.`</span>
 
